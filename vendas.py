@@ -15,12 +15,14 @@ def render_vendas():
 
     # --- SEÇÃO 1: CARRINHO DE COMPRAS ---
     with st.expander("Montar Carrinho / Nova Venda", expanded=False):
+        
         produtos_db = session.query(Estoque).all()
+        lista_nomes_produtos = [p.nome_produto for p in produtos_db]
         dict_produtos = {p.nome_produto: p for p in produtos_db}
         
         col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
-            prod_sel = st.selectbox("Selecione o Produto", [""] + list(dict_produtos.keys()))
+            prod_sel = st.selectbox("Selecione o Produto", options=lista_nomes_produtos, index=0)
         
         if prod_sel:
             obj_p = dict_produtos[prod_sel]
@@ -43,6 +45,7 @@ def render_vendas():
                     "custo_un": parse_currency(obj_p.preco_custo)
                 })
                 st.rerun()
+
 
     # Exibição do Carrinho Formatado
     if st.session_state.carrinho:

@@ -8,13 +8,6 @@ def render_estoque():
     st.markdown('<h1 style="text-align: center;">Gestão de Estoque - Edson Portões</h1>', unsafe_allow_html=True)
     session = get_session()
     
-    # CSS para o visual profissional
-    st.markdown("""
-        <style>
-            div[data-testid="stExpander"] { border: 1px solid #4B5563; border-radius: 10px; background-color: #1F2937; margin-bottom: 1rem; }
-            .stButton>button { border-radius: 8px; height: 3.5em; font-weight: bold; }
-        </style>
-    """, unsafe_allow_html=True)
 
     tipo_operacao = st.radio("Escolha a operação:", 
                              ["Visualizar / Cadastrar", "Atualizar por ID"], 
