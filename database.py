@@ -23,33 +23,37 @@ class Vendas(Base):
     data = Column(String)
     lucro = Column(Float)
 
-# Puxa a URL do Secrets (configurar no painel do Streamlit Cloud)
 @st.cache_resource
 def get_engine():
     try:
-        # Tenta pegar a URL do secrets
+        # Busca URL dos Secrets do Streamlit
         if "database" in st.secrets:
             db_url = st.secrets["database"]["url"]
         else:
-            # Se não achar, usa o SQLite local (para não crashar o app)
             return create_engine('sqlite:///estoque_edson.db')
 
+        # Correção de dialeto para PostgreSQL
         if db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql://", 1)
         
-        # pool_pre_ping é VITAL para o Streamlit Cloud não perder a conexão
-        return create_engine(db_url, pool_pre_ping=True, pool_recycle=3600)
+        # Configurações de Pool para estabilidade no Deploy
+        return create_engine(
+            db_url, 
+            pool_pre_ping=True,  # Verifica se a conexão está viva antes de usar
+            pool_size=5,         # Limite de conexões simultâneas
+            max_overflow=10, 
+            pool_recycle=1800    # Reinicia a conexão a cada 30 min
+        )
     except Exception:
         return create_engine('sqlite:///estoque_edson.db')
 
-# Inicializa o motor
 engine = get_engine()
 
-# SÓ CRIA AS TABELAS SE NÃO FOR SQLITE (OU SE VOCÊ QUISER TESTAR)
+# Tenta criar as tabelas no banco de dados
 try:
     Base.metadata.create_all(engine)
 except Exception as e:
-    st.error(f"Erro ao criar tabelas no Banco: {e}")
+    st.error(f"Erro na sincronização do Banco: {e}")
 
 Session = sessionmaker(bind=engine)
 
