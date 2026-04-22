@@ -113,7 +113,10 @@ def render_vendas(readonly=False):
             df_vendas = df_vendas[(df_vendas['Data_DT'] >= start) & (df_vendas['Data_DT'] <= end)]
             df_vendas = df_vendas.drop(columns=['Data_DT'])
 
-        st.dataframe(df_vendas, use_container_width=True, hide_index=True)
+        if not readonly:
+            st.dataframe(df_vendas, use_container_width=True, hide_index=True)
+        else:
+            st.dataframe(df_vendas[['ID', 'Produto', 'Qtd', 'Valor Total', 'Data']], use_container_width=True, hide_index=True)
 
         # Botão de Exportação de Vendas
         csv_vendas = df_vendas.to_csv(index=False).encode('utf-8')
