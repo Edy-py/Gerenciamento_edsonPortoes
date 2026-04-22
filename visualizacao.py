@@ -2,10 +2,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 from database import get_session, Estoque, Vendas
 from utils import format_currency
 
-def render_dashboard():
+def render_dashboard(readonly=False):
     session = get_session()
     
     # Alertas de Reposição
@@ -15,16 +16,37 @@ def render_dashboard():
     if itens_criticos:
         st.error(f"⚠️ **REPOR ESTOQUE:** {', '.join(itens_criticos)}")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     vendas = session.query(Vendas).all()
+
     if vendas:
-        df_v = pd.DataFrame([(v.nome_prod, v.qtd_vendida, v.lucro) for v in vendas], 
-                             columns=['Produto', 'Qtd', 'Lucro'])
+        df_v = pd.DataFrame([(v.nome_prod, v.qtd_vendida, v.lucro, v.data) for v in vendas], 
+                             columns=['Produto', 'Qtd', 'Lucro', 'Data'])
         
-        col1.metric("Total de Vendas (Qtd)", len(vendas))
+        df_v['Data'] = pd.to_datetime(df_v['Data'])
+        
         col2.metric("Produto Mais Vendido", df_v.groupby('Produto')['Qtd'].sum().idxmax())
-        col3.metric("Lucro Acumulado", format_currency(df_v['Lucro'].sum()))
+
+        if not readonly:
+            col1.metric("Total de Vendas (Qtd)", len(vendas))
+            col3.metric("Lucro Acumulado", format_currency(df_v['Lucro'].sum()))
+        
+        # produto mais vendido do mes
+        hoje = datetime.now()
+        mes_atual = hoje.month
+        ano_atual = hoje.year
+        
+        df_mes = df_v[(df_v['Data'].dt.month == mes_atual) & (df_v['Data'].dt.year == ano_atual)]
+        if not df_mes.empty:
+            mais_vendido_mes = df_mes.groupby('Produto')['Qtd'].sum().idxmax()
+        else:
+            mais_vendido_mes = "Sem vendas"
+
+        if not readonly:
+            msg = f"Produto mais vendido do mês {mes_atual}"
+            col4.metric(msg, mais_vendido_mes)
+
     else:
         col1.metric("Total de Vendas", 0)
         col2.metric("Produto Mais Vendido", "-")

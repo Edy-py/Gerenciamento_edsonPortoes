@@ -117,7 +117,7 @@ if login():
     tabs = st.tabs(["Visualização", "Estoque", "Vendas"])
 
     with tabs[0]:
-        render_dashboard()
+        render_dashboard(readonly=is_readonly)
 
     with tabs[1]:
         render_estoque(readonly=is_readonly)
