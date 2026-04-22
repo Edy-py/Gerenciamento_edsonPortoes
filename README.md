@@ -44,7 +44,7 @@ Para este projeto, escolhi tecnologias que priorizam a robustez dos dados e a es
 
 ## 🔗 Acesso e Contato
 
-- **Link do App:** [Edson Portões - Gestão](https://edsonportoes.streamlit.app/)
+- **Link do App:** [Edson Portões - Gestão](https://gerenciamentoedsonportoes.streamlit.app/))
 - **Acesso como Visitante:** usuário -> `visitante` senha -> `visitante123`
 - **Autor:** Edílson Alves da Silva (Edy)
 - **LinkedIn:** [edy-py](https://www.linkedin.com/in/edy-py)
