@@ -27,15 +27,30 @@ class Vendas(Base):
 @st.cache_resource
 def get_engine():
     try:
-        db_url = st.secrets["database"]["url"]
+        # Tenta pegar a URL do secrets
+        if "database" in st.secrets:
+            db_url = st.secrets["database"]["url"]
+        else:
+            # Se não achar, usa o SQLite local (para não crashar o app)
+            return create_engine('sqlite:///estoque_edson.db')
+
         if db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql://", 1)
-        return create_engine(db_url)
-    except:
+        
+        # pool_pre_ping é VITAL para o Streamlit Cloud não perder a conexão
+        return create_engine(db_url, pool_pre_ping=True, pool_recycle=3600)
+    except Exception:
         return create_engine('sqlite:///estoque_edson.db')
 
+# Inicializa o motor
 engine = get_engine()
-Base.metadata.create_all(engine)
+
+# SÓ CRIA AS TABELAS SE NÃO FOR SQLITE (OU SE VOCÊ QUISER TESTAR)
+try:
+    Base.metadata.create_all(engine)
+except Exception as e:
+    st.error(f"Erro ao criar tabelas no Banco: {e}")
+
 Session = sessionmaker(bind=engine)
 
 def get_session():

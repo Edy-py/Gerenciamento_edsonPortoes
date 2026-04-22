@@ -1,8 +1,6 @@
-pandas
 streamlit
-openpyxl
-pandas
-plotly
 sqlalchemy
 psycopg2-binary
 bcrypt
+pandas
+plotly
