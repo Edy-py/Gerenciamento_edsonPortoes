@@ -42,6 +42,8 @@ O sistema está organizado em três pilares fundamentais:
 
 ---
 
+- **Link de Acesso:** [Edson Portões - Gestão Estoque e vendas](https://edsonportoes.streamlit.app/)
+
 ## Autor
 
 - **E-mail:** `edilsonalvesprofissional@gmail.com`
