@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import streamlit as st
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -22,7 +23,18 @@ class Vendas(Base):
     data = Column(String)
     lucro = Column(Float)
 
-engine = create_engine('sqlite:///estoque_edson.db')
+# Puxa a URL do Secrets (configurar no painel do Streamlit Cloud)
+@st.cache_resource
+def get_engine():
+    try:
+        db_url = st.secrets["database"]["url"]
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        return create_engine(db_url)
+    except:
+        return create_engine('sqlite:///estoque_edson.db')
+
+engine = get_engine()
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
