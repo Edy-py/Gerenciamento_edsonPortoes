@@ -96,7 +96,10 @@ def render_estoque(readonly=False):
             df = df[df['PRODUTO'].str.contains(busca)]
 
         # Exibição da tabela estilizada
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        if not readonly:
+            st.dataframe(df, use_container_width=True, hide_index=True)
+        else:
+            st.dataframe(df[['ID', 'PRODUTO', 'QTD','VENDA UN.']], use_container_width=True, hide_index=True)
         
         # Métricas de resumo (Cálculo em tempo real do banco)
         total_inv = sum(i.quantidade * parse_currency(i.preco_custo) for i in dados)

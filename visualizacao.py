@@ -13,7 +13,7 @@ def render_dashboard():
     itens_criticos = [i.nome_produto for i in estoque if i.quantidade <= 1]
     
     if itens_criticos:
-        st.error(f"⚠️ **REPOR ESTOQUE IMEDIATAMENTE:** {', '.join(itens_criticos)}")
+        st.error(f"⚠️ **REPOR ESTOQUE:** {', '.join(itens_criticos)}")
 
     col1, col2, col3 = st.columns(3)
     
@@ -33,7 +33,7 @@ def render_dashboard():
     st.subheader("Níveis de Estoque")
     if estoque:
         df_est = pd.DataFrame([(i.nome_produto, i.quantidade) for i in estoque], columns=['Produto', 'Qtd'])
-        df_est['Status'] = df_est['Qtd'].apply(lambda q: 'Crítico' if q < 3 else ('Alerta' if q <= 5 else 'Ok'))
+        df_est['Status'] = df_est['Qtd'].apply(lambda q: 'Crítico' if q < 1 else ('Alerta' if q <= 5 else 'Ok'))
         
         fig = px.bar(df_est, x='Produto', y='Qtd', color='Status',
                      color_discrete_map={'Ok':'green', 'Alerta':'orange', 'Crítico':'red'},
