@@ -1,6 +1,7 @@
 streamlit
 sqlalchemy
 psycopg2-binary
+psycopg[binary]
 bcrypt
 pandas
 plotly
