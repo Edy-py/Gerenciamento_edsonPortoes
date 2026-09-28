@@ -25,31 +25,34 @@ class Vendas(Base):
 
 @st.cache_resource
 def get_engine():
-    try:
-        # Busca URL dos Secrets do Streamlit
-        if "database" in st.secrets:
-            db_url = st.secrets["database"]["url"]
-        else:
-            return create_engine('sqlite:///estoque_edson.db')
-
-        # Correção de dialeto para PostgreSQL
-        if db_url.startswith("postgres://"):
-            db_url = db_url.replace("postgres://", "postgresql://", 1)
-        
-        # Configurações de Pool para estabilidade no Deploy
-        return create_engine(
-            db_url, 
-            pool_pre_ping=True,  # Verifica se a conexão está viva antes de usar
-            pool_size=5,         # Limite de conexões simultâneas
-            max_overflow=10, 
-            pool_recycle=1800    # Reinicia a conexão a cada 30 min
-        )
-    except Exception:
+    if "database" not in st.secrets:
+        st.warning("⚠️ Chave [database] não encontrada em secrets.toml. A usar SQLite local.")
         return create_engine('sqlite:///estoque_edson.db')
+
+    db_url = st.secrets["database"]["url"]
+
+    
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+    try:
+        eng = create_engine(
+            db_url,
+            pool_pre_ping=True,
+            pool_size=5,
+            max_overflow=10,
+            pool_recycle=1800
+        )
+    
+        with eng.connect() as conn:
+            pass
+        return eng
+    except Exception as e:
+        st.error(f"❌ Erro crítico ao ligar ao Supabase: {e}")
+        st.stop()
 
 engine = get_engine()
 
-# Tenta criar as tabelas no banco de dados
 try:
     Base.metadata.create_all(engine)
 except Exception as e:
